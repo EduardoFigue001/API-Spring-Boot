@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Catálogo FERREMAS</title>
+  <link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+
+<h1>Catálogo de Productos FERREMAS</h1>
+
+<div class="filtros">
+  <input type="text" id="filtroNombre" placeholder="Buscar por nombre..." oninput="filtrar()">
+</div>
+
+<div class="grid" id="productosContainer">
+  <!-- Productos renderizados aquí -->
+</div>
+
+<script>
+let productos = [];
+
+function cargarProductos() {
+  fetch("/api/productos")
+    .then(response => response.json())
+    .then(data => {
+      productos = data;
+      renderizarProductos(data);
+    })
+    .catch(error => console.error("Error al cargar productos:", error));
+}
+
+function renderizarProductos(lista) {
+  const contenedor = document.getElementById("productosContainer");
+  contenedor.innerHTML = "";
+  lista.forEach(prod => {
+    const card = document.createElement("div");
+    card.className = "producto";
+    card.innerHTML = `
+      <h3>${prod.nombre}</h3>
+      <p><strong>Marca:</strong> ${prod.marca}</p>
+      <p><strong>Código:</strong> ${prod.codigoProducto}</p>
+      <p><strong>Precio:</strong> $${prod.precios[0].valor.toLocaleString('es-CL')}</p>
+    `;
+    contenedor.appendChild(card);
+  });
+}
+
+function filtrar() {
+  const filtroNombre = document.getElementById("filtroNombre").value.toLowerCase();
+  const filtrados = productos.filter(p => p.nombre.toLowerCase().includes(filtroNombre));
+  renderizarProductos(filtrados);
+}
+
+cargarProductos();
+</script>
+
+</body>
+</html>
+

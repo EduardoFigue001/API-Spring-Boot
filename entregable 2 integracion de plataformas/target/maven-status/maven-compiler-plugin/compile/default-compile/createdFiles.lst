@@ -1,0 +1,8 @@
+com\ferremas\controller\DivisaController.class
+com\ferremas\service\ProductoService.class
+com\ferremas\model\Producto$Precio.class
+com\ferremas\controller\ProductoController.class
+com\ferremas\FerremasApiApplication.class
+com\ferremas\controller\PagoController.class
+com\ferremas\model\Producto.class
+com\ferremas\service\DivisaService.class
