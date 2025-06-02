@@ -3,6 +3,7 @@ package com.ferremas.service;
 import com.ferremas.model.Producto;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Arrays; // <-- Agrega este import
 
 public class ProductoService {
 
@@ -53,7 +54,7 @@ public class ProductoService {
         precio.setFecha("2023-05-10T03:00:00.000Z");
         precio.setValor(Math.round((Math.random() * 90000 + 10000) * 100.0) / 100.0);
 
-        p.setPrecios(List.of(precio));
+        p.setPrecios(Arrays.asList(precio)); // <-- Cambiado para compatibilidad con Java 8
         return p;
     }
 }
