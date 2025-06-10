@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Catálogo FERREMAS</title>
+  <link rel="stylesheet" href="estilos.css">
+  <style>
+    .hero {
+      position: relative;
+      height: 300px;
+      border-radius: 16px;
+      overflow: hidden;
+      margin-bottom: 30px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      color: white;
+    }
+
+    .hero video {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: 0;
+      filter: brightness(0.5);
+    }
+
+    .hero .contenido {
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero h1 {
+      font-size: 2.6em;
+      margin-bottom: 10px;
+    }
+
+    .hero p {
+      font-size: 1.1em;
+    }
+
+    .botones-navegacion {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .botones-navegacion a button {
+      padding: 10px 20px;
+      font-size: 15px;
+      border: none;
+      border-radius: 8px;
+      background-color: #3498db;
+      color: white;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .botones-navegacion a button:hover {
+      background-color: #2980b9;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Banner con video -->
+  <div class="hero">
+    <video autoplay muted loop playsinline>
+      <source src="banner-ferremas.mp4.mp4" type="video/mp4">
+      Tu navegador no soporta el video.
+    </video>
+    <div class="contenido">
+      <h1>Catálogo de Productos FERREMAS</h1>
+      <p>Explora nuestra variedad de herramientas y suministros</p>
+    </div>
+  </div>
+
+  <!-- Botones de navegación -->
+  <div class="botones-navegacion">
+    <a href="index.html"><button>Volver al Inicio</button></a>
+    <a href="carro.html"><button>Ver Carro</button></a>
+  </div>
+
+  <!-- Filtros -->
+  <div class="filtros">
+    <input type="text" id="filtroNombre" placeholder="Buscar por nombre..." oninput="filtrar()">
+  </div>
+
+  <!-- Contenedor de productos -->
+  <div class="grid" id="productosContainer">
+    <!-- Productos renderizados aquí -->
+  </div>
+
+  <!-- Modal de confirmación -->
+  <div id="modalConfirmacion" style="display:none; position:fixed; top:30%; left:50%; transform:translate(-50%, -50%);
+    background:white; padding:20px 30px; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.2); z-index:999;">
+    <p id="mensajeModal" style="font-size:16px; color:#2c3e50; text-align:center;">Producto agregado al carro</p>
+  </div>
+
+  <!-- Script de lógica -->
+  <script>
+    let productos = [];
+
+    function cargarProductos() {
+      fetch("/api/productos")
+        .then(response => response.json())
+        .then(data => {
+          productos = data;
+          renderizarProductos(data);
+        })
+        .catch(error => console.error("Error al cargar productos:", error));
+    }
+
+    function renderizarProductos(lista) {
+      const contenedor = document.getElementById("productosContainer");
+      contenedor.innerHTML = "";
+      lista.forEach(prod => {
+        const card = document.createElement("div");
+        card.className = "producto";
+        const nombre = prod.nombre;
+        const precio = prod.precios[0]?.valor || 0;
+
+        card.innerHTML = `
+          <h3>${nombre}</h3>
+          <p><strong>Marca:</strong> ${prod.marca}</p>
+          <p><strong>Código:</strong> ${prod.codigoProducto}</p>
+          <p><strong>Precio:</strong> $${precio.toLocaleString('es-CL')}</p>
+          <button onclick="agregarAlCarro('${nombre}', ${precio})">Agregar al Carro</button>
+        `;
+        contenedor.appendChild(card);
+      });
+    }
+
+    function filtrar() {
+      const filtroNombre = document.getElementById("filtroNombre").value.toLowerCase();
+      const filtrados = productos.filter(p => p.nombre.toLowerCase().includes(filtroNombre));
+      renderizarProductos(filtrados);
+    }
+
+    function agregarAlCarro(nombre, precio) {
+      let carro = JSON.parse(localStorage.getItem('carro')) || [];
+      const existente = carro.find(item => item.nombre === nombre);
+      if (existente) {
+        existente.cantidad += 1;
+      } else {
+        carro.push({ nombre, precio, cantidad: 1 });
+      }
+      localStorage.setItem('carro', JSON.stringify(carro));
+      mostrarModal(`${nombre} agregado al carro.`);
+    }
+
+    function mostrarModal(mensaje) {
+      const modal = document.getElementById('modalConfirmacion');
+      const texto = document.getElementById('mensajeModal');
+      texto.innerText = mensaje;
+      modal.style.display = 'block';
+
+      setTimeout(() => {
+        modal.style.display = 'none';
+      }, 1800);
+    }
+
+    cargarProductos();
+  </script>
+
+</body>
+</html>

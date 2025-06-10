@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Login - Ferremas</title>
+  <link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+  <h1>Acceso a Ferremas</h1>
+  <form id="loginForm" class="filtros">
+    <input type="email" id="correo" placeholder="Correo electrónico" required><br><br>
+    <input type="password" id="clave" placeholder="Contraseña" required><br><br>
+    <button type="submit">Iniciar Sesión</button>
+    <button type="button" onclick="window.location.href='registro.html'">Crear Cuenta</button>
+  </form>
+
+  <script>
+    document.getElementById("loginForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const correo = document.getElementById("correo").value;
+      const clave = document.getElementById("clave").value;
+
+      fetch("/api/usuarios/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ correo, clave })
+      })
+      .then(res => res.text())
+      .then(data => {
+        if (data === "OK") {
+          alert("Inicio de sesión exitoso.");
+          window.location.href = "home.html";
+        } else {
+          alert("Credenciales incorrectas.");
+        }
+      });
+    });
+  </script>
+</body>
+</html>
