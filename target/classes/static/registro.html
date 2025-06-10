@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Registro - Ferremas</title>
+  <link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+  <h1>Registro de Usuario</h1>
+  <form id="registroForm" class="filtros">
+    <input type="email" id="correo" placeholder="Correo electrónico" required><br><br>
+    <input type="password" id="clave" placeholder="Contraseña" required><br><br>
+    <button type="submit">Registrar</button>
+    <button type="button" onclick="window.location.href='index.html'">Volver a Login</button>
+  </form>
+
+  <script>
+    document.getElementById("registroForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const correo = document.getElementById("correo").value;
+      const clave = document.getElementById("clave").value;
+
+      fetch("/api/usuarios/registrar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ correo, clave })
+      })
+      .then(res => res.text())
+      .then(data => {
+        if (data === "REGISTRADO") {
+          alert("Usuario registrado con éxito.");
+          window.location.href = "index.html";
+        } else if (data === "EXISTE") {
+          alert("Este correo ya está registrado.");
+        } else {
+          alert("Error al registrar usuario.");
+        }
+      });
+    });
+  </script>
+</body>
+</html>
