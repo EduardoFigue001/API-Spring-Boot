@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Test Registro - Ferremas</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        .container { max-width: 500px; margin: 0 auto; }
+        input, button { padding: 10px; margin: 5px; width: 100%; box-sizing: border-box; }
+        button { background: #007bff; color: white; border: none; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .result { margin-top: 20px; padding: 10px; border-radius: 5px; }
+        .success { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
+        .error { background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Test de Registro - API Ferremas</h1>
+        
+        <h2>Registro de Usuario</h2>
+        <form id="registroForm">
+            <input type="email" id="correo" placeholder="Correo electrónico" required>
+            <input type="password" id="clave" placeholder="Contraseña (mín. 6 caracteres)" required>
+            <button type="submit">Registrar Usuario</button>
+        </form>
+        
+        <h2>Login de Usuario</h2>
+        <form id="loginForm">
+            <input type="email" id="loginCorreo" placeholder="Correo electrónico" required>
+            <input type="password" id="loginClave" placeholder="Contraseña" required>
+            <button type="submit">Iniciar Sesión</button>
+        </form>
+        
+        <div id="resultado"></div>
+    </div>
+
+    <script>
+        function mostrarResultado(mensaje, esExito = true) {
+            const resultado = document.getElementById('resultado');
+            resultado.innerHTML = `<div class="${esExito ? 'success' : 'error'}">${mensaje}</div>`;
+        }
+
+        // Registro
+        document.getElementById("registroForm").addEventListener("submit", function(e) {
+            e.preventDefault();
+            const correo = document.getElementById("correo").value;
+            const clave = document.getElementById("clave").value;
+
+            mostrarResultado("⏳ Registrando usuario...");
+
+            fetch("/api/usuarios/registrar", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ correo, clave })
+            })
+            .then(res => res.json())
+            .then(data => {
+                console.log("Respuesta registro:", data);
+                if (data.success && data.mensaje === "REGISTRADO") {
+                    mostrarResultado(`✅ Usuario registrado exitosamente! ID: ${data.usuario.id}`, true);
+                    document.getElementById("registroForm").reset();
+                } else if (data.mensaje === "EXISTE") {
+                    mostrarResultado("⚠️ Este correo ya está registrado.", false);
+                } else {
+                    mostrarResultado(`❌ Error: ${data.detalle || data.mensaje || "Error desconocido"}`, false);
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                mostrarResultado("❌ Error de conexión al registrar usuario.", false);
+            });
+        });
+
+        // Login
+        document.getElementById("loginForm").addEventListener("submit", function(e) {
+            e.preventDefault();
+            const correo = document.getElementById("loginCorreo").value;
+            const clave = document.getElementById("loginClave").value;
+
+            mostrarResultado("⏳ Iniciando sesión...");
+
+            fetch("/api/usuarios/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ correo, clave })
+            })
+            .then(res => res.json())
+            .then(data => {
+                console.log("Respuesta login:", data);
+                if (data.success && data.mensaje === "OK") {
+                    mostrarResultado(`✅ Login exitoso! Bienvenido ${data.usuario.correo}`, true);
+                    document.getElementById("loginForm").reset();
+                } else {
+                    mostrarResultado(`❌ Credenciales incorrectas: ${data.detalle || data.mensaje}`, false);
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                mostrarResultado("❌ Error de conexión al iniciar sesión.", false);
+            });
+        });
+    </script>
+</body>
+</html>

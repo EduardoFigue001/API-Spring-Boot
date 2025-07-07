@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Test Carro - Ferremas</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    .container { max-width: 800px; margin: 0 auto; }
+    .card { border: 1px solid #ddd; padding: 15px; margin: 10px 0; border-radius: 8px; }
+    button { padding: 10px 15px; margin: 5px; border: none; border-radius: 5px; cursor: pointer; }
+    .btn-primary { background: #007bff; color: white; }
+    .btn-success { background: #28a745; color: white; }
+    .btn-warning { background: #ffc107; color: black; }
+    .btn-danger { background: #dc3545; color: white; }
+    .status { padding: 10px; margin: 10px 0; border-radius: 5px; }
+    .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+    .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+    .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🔧 Test del Carro de Compras - Ferremas</h1>
+    
+    <div class="card">
+      <h2>1. Estado de Autenticación</h2>
+      <div id="auth-status" class="status info">Verificando...</div>
+      <button onclick="testLogin()" class="btn-primary">Hacer Login de Prueba</button>
+      <button onclick="clearAuth()" class="btn-warning">Limpiar Autenticación</button>
+    </div>
+
+    <div class="card">
+      <h2>2. Gestión del Carrito</h2>
+      <div id="cart-status" class="status info">Carrito vacío</div>
+      <button onclick="addTestProduct()" class="btn-success">Agregar Producto de Prueba</button>
+      <button onclick="showCart()" class="btn-primary">Mostrar Carrito</button>
+      <button onclick="clearCart()" class="btn-warning">Vaciar Carrito</button>
+    </div>
+
+    <div class="card">
+      <h2>3. Test de Finalización</h2>
+      <div id="checkout-status" class="status info">Listo para probar</div>
+      <button onclick="testFinalizarCompra()" class="btn-success">🛒 Finalizar Compra (Test)</button>
+    </div>
+
+    <div class="card">
+      <h2>4. Logs de Prueba</h2>
+      <div id="logs" style="background: #f8f9fa; padding: 10px; border-radius: 5px; font-family: monospace; max-height: 200px; overflow-y: auto;"></div>
+      <button onclick="clearLogs()" class="btn-warning">Limpiar Logs</button>
+    </div>
+  </div>
+
+  <script>
+    function log(message) {
+      const logs = document.getElementById('logs');
+      const timestamp = new Date().toLocaleTimeString();
+      logs.innerHTML += `[${timestamp}] ${message}<br>`;
+      logs.scrollTop = logs.scrollHeight;
+      console.log(message);
+    }
+
+    function updateAuthStatus() {
+      const userInfo = localStorage.getItem('userInfo');
+      const statusDiv = document.getElementById('auth-status');
+      
+      if (userInfo) {
+        const user = JSON.parse(userInfo);
+        statusDiv.innerHTML = `✅ Usuario logueado: ${user.correo} (ID: ${user.id})`;
+        statusDiv.className = 'status success';
+        log(`Usuario autenticado: ${user.correo}`);
+      } else {
+        statusDiv.innerHTML = '❌ No hay usuario logueado';
+        statusDiv.className = 'status error';
+        log('No hay usuario autenticado');
+      }
+    }
+
+    function updateCartStatus() {
+      const cart = JSON.parse(localStorage.getItem('carro')) || [];
+      const statusDiv = document.getElementById('cart-status');
+      
+      if (cart.length === 0) {
+        statusDiv.innerHTML = '🛒 Carrito vacío';
+        statusDiv.className = 'status info';
+      } else {
+        const total = cart.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
+        statusDiv.innerHTML = `🛒 ${cart.length} productos en el carrito - Total: $${total.toLocaleString()}`;
+        statusDiv.className = 'status success';
+      }
+      log(`Carrito actualizado: ${cart.length} productos`);
+    }
+
+    async function testLogin() {
+      try {
+        log('Iniciando login de prueba...');
+        const response = await fetch('/api/usuarios/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            correo: 'usuario@test.com',
+            clave: '123456'
+          })
+        });
+
+        const data = await response.json();
+        
+        if (data.success) {
+          localStorage.setItem('userToken', data.token);
+          localStorage.setItem('userInfo', JSON.stringify(data.usuario));
+          log('✅ Login exitoso');
+          updateAuthStatus();
+        } else {
+          log('❌ Error en login: ' + data.mensaje);
+        }
+      } catch (error) {
+        log('❌ Error en login: ' + error.message);
+      }
+    }
+
+    function clearAuth() {
+      localStorage.removeItem('userToken');
+      localStorage.removeItem('userInfo');
+      log('Autenticación limpiada');
+      updateAuthStatus();
+    }
+
+    function addTestProduct() {
+      const product = {
+        id: 1,
+        nombre: 'Martillo de Acero (Test)',
+        precio: 25000,
+        cantidad: 1
+      };
+
+      let cart = JSON.parse(localStorage.getItem('carro')) || [];
+      const existingIndex = cart.findIndex(item => item.id === product.id);
+      
+      if (existingIndex >= 0) {
+        cart[existingIndex].cantidad += 1;
+        log(`Cantidad incrementada para ${product.nombre}`);
+      } else {
+        cart.push(product);
+        log(`Producto agregado: ${product.nombre}`);
+      }
+
+      localStorage.setItem('carro', JSON.stringify(cart));
+      updateCartStatus();
+    }
+
+    function showCart() {
+      const cart = JSON.parse(localStorage.getItem('carro')) || [];
+      log('=== CONTENIDO DEL CARRITO ===');
+      cart.forEach(item => {
+        log(`- ${item.nombre}: $${item.precio} x ${item.cantidad} = $${item.precio * item.cantidad}`);
+      });
+      log('=== FIN DEL CARRITO ===');
+    }
+
+    function clearCart() {
+      localStorage.removeItem('carro');
+      log('Carrito vaciado');
+      updateCartStatus();
+    }
+
+    async function testFinalizarCompra() {
+      const statusDiv = document.getElementById('checkout-status');
+      
+      try {
+        log('🛒 Iniciando test de finalización de compra...');
+        
+        // Verificar autenticación
+        const userInfo = localStorage.getItem('userInfo');
+        if (!userInfo) {
+          log('❌ Error: Usuario no autenticado');
+          statusDiv.innerHTML = '❌ Usuario no autenticado';
+          statusDiv.className = 'status error';
+          return;
+        }
+
+        const user = JSON.parse(userInfo);
+        log(`✅ Usuario autenticado: ${user.correo}`);
+
+        // Verificar carrito
+        const cart = JSON.parse(localStorage.getItem('carro')) || [];
+        if (cart.length === 0) {
+          log('❌ Error: Carrito vacío');
+          statusDiv.innerHTML = '❌ Carrito vacío';
+          statusDiv.className = 'status error';
+          return;
+        }
+
+        log(`✅ Carrito con ${cart.length} productos`);
+
+        // Calcular total
+        const total = cart.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
+        log(`✅ Total calculado: $${total.toLocaleString()}`);
+
+        // Preparar datos de compra
+        const compraData = {
+          usuarioId: user.id,
+          totalCompra: total,
+          metodoPago: "Efectivo",
+          direccionEntrega: user.correo,
+          notasCompra: "Compra de prueba desde test-carro.html",
+          detalles: cart.map(item => ({
+            productoId: item.id,
+            cantidad: item.cantidad,
+            precioUnitario: item.precio
+          }))
+        };
+
+        log('📤 Enviando datos de compra...');
+        console.log('Datos de compra:', compraData);
+
+        // Realizar la compra
+        const response = await fetch('/api/compras', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('userToken')}`
+          },
+          body: JSON.stringify(compraData)
+        });
+
+        const result = await response.json();
+        console.log('Resultado de compra:', result);
+
+        if (response.ok && result.success) {
+          log('🎉 ¡Compra finalizada exitosamente!');
+          log(`📋 ID de compra: ${result.compra.id}`);
+          log(`💰 Total: $${result.compra.totalCompra}`);
+          
+          // Limpiar carrito
+          localStorage.removeItem('carro');
+          updateCartStatus();
+          
+          statusDiv.innerHTML = `🎉 ¡Compra exitosa! ID: ${result.compra.id}`;
+          statusDiv.className = 'status success';
+        } else {
+          log('❌ Error al finalizar compra: ' + (result.mensaje || result.error || 'Error desconocido'));
+          statusDiv.innerHTML = '❌ Error al finalizar compra';
+          statusDiv.className = 'status error';
+        }
+
+      } catch (error) {
+        log('❌ Error en finalización: ' + error.message);
+        statusDiv.innerHTML = '❌ Error en finalización';
+        statusDiv.className = 'status error';
+      }
+    }
+
+    function clearLogs() {
+      document.getElementById('logs').innerHTML = '';
+    }
+
+    // Inicializar al cargar la página
+    window.addEventListener('load', () => {
+      log('🚀 Test del carrito iniciado');
+      updateAuthStatus();
+      updateCartStatus();
+    });
+  </script>
+</body>
+</html>

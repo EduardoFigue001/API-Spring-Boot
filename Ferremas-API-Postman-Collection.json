@@ -1,0 +1,450 @@
+{
+  "info": {
+    "_postman_id": "ferremas-api-collection",
+    "name": "Ferremas API - Colección Completa",
+    "description": "Colección completa de endpoints para la API de Ferremas",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Productos",
+      "item": [
+        {
+          "name": "Obtener todos los productos",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/productos",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "productos"]
+            }
+          }
+        },
+        {
+          "name": "Buscar producto por código",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/productos/FER-001",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "productos", "FER-001"]
+            }
+          }
+        },
+        {
+          "name": "Productos por categoría",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/productos/categoria/HERRAMIENTAS",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "productos", "categoria", "HERRAMIENTAS"]
+            }
+          }
+        },
+        {
+          "name": "Buscar por marca",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/productos/buscar/marca?marca=Bosch",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "productos", "buscar", "marca"],
+              "query": [
+                {
+                  "key": "marca",
+                  "value": "Bosch"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Productos disponibles",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/productos/disponibles",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "productos", "disponibles"]
+            }
+          }
+        },
+        {
+          "name": "Crear nuevo producto",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"codigoProducto\": \"FER-999\",\n  \"marca\": \"Bosch\",\n  \"codigoInterno\": \"BOS-999\",\n  \"nombre\": \"Taladro GSB 13 RE\",\n  \"descripcion\": \"Taladro percutor 650W con mandril de 13mm\",\n  \"categoria\": \"HERRAMIENTAS\",\n  \"subcategoria\": \"TALADROS\",\n  \"stock\": 15,\n  \"precioActual\": 89000.0,\n  \"modelo\": \"GSB-13RE\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/productos",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "productos"]
+            }
+          }
+        },
+        {
+          "name": "Verificar disponibilidad",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/productos/FER-001/disponibilidad?cantidad=5",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "productos", "FER-001", "disponibilidad"],
+              "query": [
+                {
+                  "key": "cantidad",
+                  "value": "5"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Actualizar stock",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"stock\": 30\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/productos/FER-001/stock",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "productos", "FER-001", "stock"]
+            }
+          }
+        },
+        {
+          "name": "Obtener categorías",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/productos/categorias",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "productos", "categorias"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Usuarios",
+      "item": [
+        {
+          "name": "Registrar usuario",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"correo\": \"usuario.prueba@ferremas.cl\",\n  \"clave\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/usuarios/registrar",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "usuarios", "registrar"]
+            }
+          }
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"correo\": \"usuario.prueba@ferremas.cl\",\n  \"clave\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/usuarios/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "usuarios", "login"]
+            }
+          }
+        },
+        {
+          "name": "Validar token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"JWT_TOKEN_AQUI\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/usuarios/validar-token",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "usuarios", "validar-token"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Divisas",
+      "item": [
+        {
+          "name": "Valor del dólar",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/divisa/dolar",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "divisa", "dolar"]
+            }
+          }
+        },
+        {
+          "name": "Convertir CLP a USD",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/divisa/convertir?clp=50000",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "divisa", "convertir"],
+              "query": [
+                {
+                  "key": "clp",
+                  "value": "50000"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Convertir USD a CLP",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/divisa/convertir-usd?usd=100",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "divisa", "convertir-usd"],
+              "query": [
+                {
+                  "key": "usd",
+                  "value": "100"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Histórico de valores",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/divisa/historico?dias=7",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "divisa", "historico"],
+              "query": [
+                {
+                  "key": "dias",
+                  "value": "7"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Pagos",
+      "item": [
+        {
+          "name": "Iniciar pago",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"monto\": 45000,\n  \"numeroOrden\": \"ORD-001\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/pago/iniciar",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "pago", "iniciar"]
+            }
+          }
+        },
+        {
+          "name": "Pago exitoso",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/pago/exito?token=test-token-123",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "pago", "exito"],
+              "query": [
+                {
+                  "key": "token",
+                  "value": "test-token-123"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Métodos de pago",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/pago/metodos",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "pago", "metodos"]
+            }
+          }
+        },
+        {
+          "name": "Consultar estado",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/pago/estado/test-token-123",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "pago", "estado", "test-token-123"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Contacto",
+      "item": [
+        {
+          "name": "Enviar consulta",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Juan Pérez\",\n  \"email\": \"juan.perez@email.com\",\n  \"mensaje\": \"Necesito información sobre herramientas eléctricas\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/contacto/consulta",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "contacto", "consulta"]
+            }
+          }
+        },
+        {
+          "name": "Solicitar cotización",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"María González\",\n  \"email\": \"maria.gonzalez@empresa.cl\",\n  \"productos\": \"Taladros Bosch, Sierras Makita\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/contacto/cotizacion",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "contacto", "cotizacion"]
+            }
+          }
+        },
+        {
+          "name": "Información de contacto",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/contacto/info",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "contacto", "info"]
+            }
+          }
+        },
+        {
+          "name": "Buscar vendedor especialista",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/contacto/vendedor/herramientas",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "contacto", "vendedor", "herramientas"]
+            }
+          }
+        },
+        {
+          "name": "Horarios de atención",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/contacto/horarios",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "contacto", "horarios"]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    }
+  ]
+}

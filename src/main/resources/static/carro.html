@@ -64,7 +64,7 @@
     <button onclick="finalizarCompra()">Finalizar Compra</button>
     <button onclick="vaciarCarro()">Vaciar Carro</button>
     <a href="catalogo.html"><button>Volver al Catálogo</button></a>
-    <a href="index.html"><button>Volver al Inicio</button></a>
+    <a href="home.html"><button>Volver al Inicio</button></a>
   </div>
 
   <!-- Modal -->
@@ -117,29 +117,93 @@
       mostrarCarro();
     }
 
-    function finalizarCompra() {
+    async function finalizarCompra() {
       const carro = JSON.parse(localStorage.getItem('carro')) || [];
       if (carro.length === 0) {
         alert("El carro está vacío.");
         return;
       }
 
-      let contenido = "Resumen de Compra - Ferremas\n\n";
+      // Verificar si el usuario está logueado
+      const usuario = JSON.parse(localStorage.getItem('userInfo'));
+      if (!usuario) {
+        if (confirm("Necesitas estar logueado para finalizar la compra. ¿Quieres ir al registro/login?")) {
+          window.location.href = 'registro.html';
+        }
+        return;
+      }
+
+      // Mostrar modal de confirmación con detalles
+      if (!mostrarModalConfirmacion()) {
+        return;
+      }
+
+      try {
+        // Preparar datos para la compra
+        const compraData = {
+          usuarioId: usuario.id,
+          totalCompra: total,
+          metodoPago: "Efectivo", // Se puede hacer más dinámico
+          direccionEntrega: usuario.email, // Simplificado por ahora
+          notasCompra: "Compra realizada desde el carrito web",
+          detalles: carro.map(item => ({
+            productoId: item.id,
+            cantidad: item.cantidad,
+            precioUnitario: item.precio
+          }))
+        };
+
+        console.log('Enviando compra:', compraData);
+
+        // Realizar la compra
+        const response = await fetch('http://localhost:8080/api/compras', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(compraData)
+        });
+
+        if (response.ok) {
+          const compraRealizada = await response.json();
+          
+          // Generar archivo de resumen como antes
+          let contenido = `Resumen de Compra - Ferremas\nID Compra: ${compraRealizada.id}\nFecha: ${new Date(compraRealizada.fechaCompra).toLocaleString()}\n\n`;
+          carro.forEach(item => {
+            const subtotal = item.precio * item.cantidad;
+            contenido += `Producto: ${item.nombre}\nCantidad: ${item.cantidad}\nPrecio unitario: $${item.precio.toLocaleString()}\nSubtotal: $${subtotal.toLocaleString()}\n\n`;
+          });
+          contenido += `TOTAL: $${total.toLocaleString()}\n\nGracias por su compra, ${usuario.correo}!`;
+
+          const blob = new Blob([contenido], { type: "text/plain" });
+          const enlace = document.createElement("a");
+          enlace.href = URL.createObjectURL(blob);
+          enlace.download = `compra_${compraRealizada.id}_ferremas.txt`;
+          enlace.click();
+
+          alert(`¡Compra registrada exitosamente! ID: ${compraRealizada.id}\n\nPuedes ver tu historial de compras en tu perfil.`);
+          localStorage.removeItem('carro');
+          location.reload();
+        } else {
+          const error = await response.text();
+          alert('Error al procesar la compra: ' + error);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Error de conexión. Por favor intenta nuevamente.');
+      }
+    }
+
+    function mostrarModalConfirmacion() {
+      const carro = JSON.parse(localStorage.getItem('carro')) || [];
+      let resumen = "¿Confirmar compra?\n\nResumen:\n";
       carro.forEach(item => {
         const subtotal = item.precio * item.cantidad;
-        contenido += `Producto: ${item.nombre}\nCantidad: ${item.cantidad}\nPrecio unitario: $${item.precio.toLocaleString()}\nSubtotal: $${subtotal.toLocaleString()}\n\n`;
+        resumen += `• ${item.nombre} x${item.cantidad} = $${subtotal.toLocaleString()}\n`;
       });
-      contenido += `TOTAL: $${total.toLocaleString()}\n\nGracias por su compra.`;
-
-      const blob = new Blob([contenido], { type: "text/plain" });
-      const enlace = document.createElement("a");
-      enlace.href = URL.createObjectURL(blob);
-      enlace.download = "resumen_compra_ferremas.txt";
-      enlace.click();
-
-      alert("¡Gracias por su compra!");
-      localStorage.removeItem('carro');
-      location.reload();
+      resumen += `\nTOTAL: $${total.toLocaleString()}`;
+      
+      return confirm(resumen);
     }
 
     function vaciarCarro() {

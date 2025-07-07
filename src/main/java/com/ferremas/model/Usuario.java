@@ -3,16 +3,18 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
+import jakarta.persistence.Column;
 
 @Entity
 public class Usuario {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    private String correo;
+    private Long id;    private String correo;
     private String clave;
+    
+    @Column(name = "es_admin", nullable = false, columnDefinition = "boolean default false")
+    private boolean esAdmin = false;
 
     // Constructor vacío (requerido por JPA)
     public Usuario() {}
@@ -28,8 +30,9 @@ public class Usuario {
     public void setId(Long id) { this.id = id; }
 
     public String getCorreo() { return correo; }
-    public void setCorreo(String correo) { this.correo = correo; }
-
-    public String getClave() { return clave; }
+    public void setCorreo(String correo) { this.correo = correo; }    public String getClave() { return clave; }
     public void setClave(String clave) { this.clave = clave; }
+
+    public boolean isEsAdmin() { return esAdmin; }
+    public void setEsAdmin(boolean esAdmin) { this.esAdmin = esAdmin; }
 }

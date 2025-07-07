@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Historial de Compras - Ferremas</title>
+  <link rel="stylesheet" href="estilos.css">
+  <style>
+    .hero {
+      position: relative;
+      height: 250px;
+      overflow: hidden;
+      border-radius: 16px;
+      margin-bottom: 30px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+
+    .hero video {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      min-width: 100%;
+      min-height: 100%;
+      transform: translate(-50%, -50%);
+      object-fit: cover;
+      z-index: 1;
+    }
+
+    .hero-texto {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      color: white;
+      padding: 80px 20px 0;
+      background: rgba(0,0,0,0.4);
+      height: 100%;
+    }
+
+    .hero-texto h1 {
+      font-size: 2.5em;
+      margin: 0;
+    }
+
+    .compra-item {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      margin: 20px 0;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      border-left: 4px solid #3498db;
+    }
+
+    .compra-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #ecf0f1;
+    }
+
+    .compra-id {
+      font-weight: bold;
+      color: #2c3e50;
+      font-size: 1.1em;
+    }
+
+    .compra-fecha {
+      color: #7f8c8d;
+      font-size: 0.9em;
+    }
+
+    .estado-badge {
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.8em;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+
+    .estado-pendiente { background: #f39c12; color: white; }
+    .estado-confirmada { background: #27ae60; color: white; }
+    .estado-enviada { background: #3498db; color: white; }
+    .estado-entregada { background: #2ecc71; color: white; }
+    .estado-cancelada { background: #e74c3c; color: white; }
+
+    .compra-total {
+      font-size: 1.3em;
+      font-weight: bold;
+      color: #27ae60;
+      margin: 10px 0;
+    }
+
+    .detalles-compra {
+      margin-top: 15px;
+    }
+
+    .detalle-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px dotted #bdc3c7;
+    }
+
+    .detalle-item:last-child {
+      border-bottom: none;
+    }
+
+    .botones-compra {
+      margin-top: 15px;
+      text-align: right;
+    }
+
+    .btn-detalle {
+      background: #3498db;
+      color: white;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-left: 10px;
+      font-size: 0.9em;
+    }
+
+    .btn-detalle:hover {
+      background: #2980b9;
+    }
+
+    .btn-cancelar {
+      background: #e74c3c;
+      color: white;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-left: 10px;
+      font-size: 0.9em;
+    }
+
+    .btn-cancelar:hover {
+      background: #c0392b;
+    }
+
+    .sin-compras {
+      text-align: center;
+      color: #7f8c8d;
+      font-size: 1.2em;
+      margin: 50px 0;
+    }
+
+    .filtros {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 20px;
+      align-items: center;
+    }
+
+    .filtro-select {
+      padding: 8px 12px;
+      border: 1px solid #bdc3c7;
+      border-radius: 6px;
+      background: white;
+    }
+
+    .loading {
+      text-align: center;
+      color: #3498db;
+      font-size: 1.1em;
+      margin: 50px 0;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Banner con video -->
+  <div class="hero">
+    <video autoplay muted loop>
+      <source src="banner-ferremas.mp4.mp4" type="video/mp4">
+      Tu navegador no soporta el video.
+    </video>
+    <div class="hero-texto">
+      <h1>Historial de Compras</h1>
+    </div>
+  </div>
+
+  <div class="container">
+    <!-- Filtros -->
+    <div class="filtros">
+      <label>Filtrar por estado:</label>
+      <select id="filtroEstado" class="filtro-select" onchange="aplicarFiltros()">
+        <option value="">Todos</option>
+        <option value="PENDIENTE">Pendiente</option>
+        <option value="CONFIRMADA">Confirmada</option>
+        <option value="ENVIADA">Enviada</option>
+        <option value="ENTREGADA">Entregada</option>
+        <option value="CANCELADA">Cancelada</option>
+      </select>
+      
+      <button onclick="cargarHistorial()" style="margin-left: 20px;">🔄 Actualizar</button>
+    </div>
+
+    <!-- Contenido del historial -->
+    <div id="historial-contenido">
+      <div class="loading">Cargando historial...</div>
+    </div>
+
+    <!-- Botones de navegación -->
+    <div class="filtros" style="margin-top: 30px; justify-content: center;">
+      <a href="home.html"><button>Volver al Inicio</button></a>
+      <a href="catalogo.html"><button>Ir al Catálogo</button></a>
+      <a href="carro.html"><button>Ver Carrito</button></a>
+    </div>
+  </div>
+
+  <!-- Modal para detalles -->
+  <div id="modalDetalles" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; 
+    background:rgba(0,0,0,0.5); z-index:1000; overflow-y:auto;">
+    <div style="background:white; margin:50px auto; max-width:600px; border-radius:12px; overflow:hidden;">
+      <div style="background:#3498db; color:white; padding:20px; text-align:center;">
+        <h2>Detalles de la Compra</h2>
+      </div>
+      <div id="modalContenido" style="padding:20px;">
+        <!-- Contenido del modal se carga dinámicamente -->
+      </div>
+      <div style="padding:20px; text-align:center; border-top:1px solid #ecf0f1;">
+        <button onclick="cerrarModal()" style="background:#95a5a6; color:white; border:none; 
+          padding:10px 20px; border-radius:6px; cursor:pointer;">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let comprasOriginales = [];
+    let comprasFiltradas = [];
+
+    async function cargarHistorial() {
+      const contenedor = document.getElementById('historial-contenido');
+      
+      // Verificar si el usuario está logueado
+      const usuario = JSON.parse(localStorage.getItem('userInfo'));
+      if (!usuario) {
+        contenedor.innerHTML = `
+          <div class="sin-compras">
+            <p>Necesitas estar logueado para ver tu historial de compras.</p>
+            <a href="registro.html"><button>Ir al Login</button></a>
+          </div>
+        `;
+        return;
+      }
+
+      try {
+        contenedor.innerHTML = '<div class="loading">Cargando historial...</div>';
+        
+        const response = await fetch(`http://localhost:8080/api/compras/usuario/${usuario.id}`);
+        
+        if (response.ok) {
+          const data = await response.json();
+          comprasOriginales = data.compras || [];
+          comprasFiltradas = [...comprasOriginales];
+          mostrarCompras();
+        } else {
+          throw new Error('Error al cargar el historial');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        contenedor.innerHTML = `
+          <div class="sin-compras">
+            <p>Error al cargar el historial de compras.</p>
+            <button onclick="cargarHistorial()">Reintentar</button>
+          </div>
+        `;
+      }
+    }
+
+    function mostrarCompras() {
+      const contenedor = document.getElementById('historial-contenido');
+      
+      if (comprasFiltradas.length === 0) {
+        contenedor.innerHTML = `
+          <div class="sin-compras">
+            <p>No tienes compras registradas.</p>
+            <a href="catalogo.html"><button>Explorar Productos</button></a>
+          </div>
+        `;
+        return;
+      }
+
+      let html = '';
+      comprasFiltradas.forEach(compra => {
+        const fecha = new Date(compra.fechaCompra).toLocaleString();
+        const estadoClass = `estado-${compra.estado.toLowerCase()}`;
+        
+        html += `
+          <div class="compra-item">
+            <div class="compra-header">
+              <div>
+                <div class="compra-id">Compra #${compra.id}</div>
+                <div class="compra-fecha">${fecha}</div>
+              </div>
+              <div class="estado-badge ${estadoClass}">${compra.estado}</div>
+            </div>
+            
+            <div class="compra-total">Total: $${compra.totalCompra.toLocaleString()}</div>
+            
+            <div style="color: #7f8c8d; font-size: 0.9em;">
+              <p><strong>Método de pago:</strong> ${compra.metodoPago || 'No especificado'}</p>
+              ${compra.direccionEntrega ? `<p><strong>Dirección:</strong> ${compra.direccionEntrega}</p>` : ''}
+              ${compra.notasCompra ? `<p><strong>Notas:</strong> ${compra.notasCompra}</p>` : ''}
+            </div>
+
+            <div class="detalles-compra">
+              <strong>Productos (${compra.detalles.length}):</strong>
+              ${compra.detalles.slice(0, 3).map(detalle => `
+                <div class="detalle-item">
+                  <span>${detalle.producto.nombre} x${detalle.cantidad}</span>
+                  <span>$${(detalle.precioUnitario * detalle.cantidad).toLocaleString()}</span>
+                </div>
+              `).join('')}
+              ${compra.detalles.length > 3 ? '<div style="color: #7f8c8d; font-size: 0.9em;">... y más productos</div>' : ''}
+            </div>
+
+            <div class="botones-compra">
+              <button class="btn-detalle" onclick="verDetalles(${compra.id})">Ver Detalles</button>
+              ${compra.estado === 'PENDIENTE' ? 
+                `<button class="btn-cancelar" onclick="cancelarCompra(${compra.id})">Cancelar</button>` : ''}
+            </div>
+          </div>
+        `;
+      });
+
+      contenedor.innerHTML = html;
+    }
+
+    function aplicarFiltros() {
+      const estadoFiltro = document.getElementById('filtroEstado').value;
+      
+      if (estadoFiltro === '') {
+        comprasFiltradas = [...comprasOriginales];
+      } else {
+        comprasFiltradas = comprasOriginales.filter(compra => compra.estado === estadoFiltro);
+      }
+      
+      mostrarCompras();
+    }
+
+    async function verDetalles(compraId) {
+      try {
+        const response = await fetch(`http://localhost:8080/api/compras/${compraId}`);
+        if (response.ok) {
+          const compra = await response.json();
+          mostrarModalDetalles(compra);
+        } else {
+          alert('Error al cargar los detalles de la compra');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Error de conexión');
+      }
+    }
+
+    function mostrarModalDetalles(compra) {
+      const modal = document.getElementById('modalDetalles');
+      const contenido = document.getElementById('modalContenido');
+      
+      const fecha = new Date(compra.fechaCompra).toLocaleString();
+      
+      let html = `
+        <h3>Compra #${compra.id}</h3>
+        <p><strong>Fecha:</strong> ${fecha}</p>
+        <p><strong>Estado:</strong> <span class="estado-badge estado-${compra.estado.toLowerCase()}">${compra.estado}</span></p>
+        <p><strong>Total:</strong> $${compra.totalCompra.toLocaleString()}</p>
+        <p><strong>Método de pago:</strong> ${compra.metodoPago || 'No especificado'}</p>
+        ${compra.direccionEntrega ? `<p><strong>Dirección:</strong> ${compra.direccionEntrega}</p>` : ''}
+        ${compra.notasCompra ? `<p><strong>Notas:</strong> ${compra.notasCompra}</p>` : ''}
+        
+        <h4>Productos:</h4>
+        <div style="max-height: 300px; overflow-y: auto;">
+      `;
+      
+      compra.detalles.forEach(detalle => {
+        const subtotal = detalle.precioUnitario * detalle.cantidad;
+        html += `
+          <div class="detalle-item" style="padding: 10px; margin: 5px 0; background: #f8f9fa; border-radius: 6px;">
+            <div>
+              <strong>${detalle.producto.nombre}</strong><br>
+              <small>Código: ${detalle.producto.codigo}</small>
+            </div>
+            <div style="text-align: right;">
+              <div>Cantidad: ${detalle.cantidad}</div>
+              <div>Precio unitario: $${detalle.precioUnitario.toLocaleString()}</div>
+              <div><strong>Subtotal: $${subtotal.toLocaleString()}</strong></div>
+            </div>
+          </div>
+        `;
+      });
+      
+      html += '</div>';
+      contenido.innerHTML = html;
+      modal.style.display = 'block';
+    }
+
+    async function cancelarCompra(compraId) {
+      if (!confirm('¿Estás seguro de que quieres cancelar esta compra?')) {
+        return;
+      }
+
+      try {
+        const response = await fetch(`http://localhost:8080/api/compras/${compraId}/cancelar`, {
+          method: 'PUT'
+        });
+
+        if (response.ok) {
+          alert('Compra cancelada exitosamente');
+          cargarHistorial(); // Recargar el historial
+        } else {
+          const error = await response.text();
+          alert('Error al cancelar la compra: ' + error);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Error de conexión');
+      }
+    }
+
+    function cerrarModal() {
+      document.getElementById('modalDetalles').style.display = 'none';
+    }
+
+    // Cerrar modal al hacer click fuera de él
+    document.getElementById('modalDetalles').addEventListener('click', function(e) {
+      if (e.target === this) {
+        cerrarModal();
+      }
+    });
+
+    // Cargar historial al cargar la página
+    document.addEventListener('DOMContentLoaded', cargarHistorial);
+  </script>
+
+</body>
+</html>

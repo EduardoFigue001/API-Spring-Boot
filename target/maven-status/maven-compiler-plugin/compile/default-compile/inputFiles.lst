@@ -1,10 +1,18 @@
-C:\Users\andre\Documents\Entrega 2 -20250607T135431Z-1-001\Entrega 2\src\main\java\com\ferremas\model\Producto.java
-C:\Users\andre\Documents\Entrega 2 -20250607T135431Z-1-001\Entrega 2\src\main\java\com\ferremas\model\Usuario.java
-C:\Users\andre\Documents\Entrega 2 -20250607T135431Z-1-001\Entrega 2\src\main\java\com\ferremas\service\ProductoService.java
-C:\Users\andre\Documents\Entrega 2 -20250607T135431Z-1-001\Entrega 2\src\main\java\com\ferremas\controller\DivisaController.java
-C:\Users\andre\Documents\Entrega 2 -20250607T135431Z-1-001\Entrega 2\src\main\java\com\ferremas\controller\ProductoController.java
-C:\Users\andre\Documents\Entrega 2 -20250607T135431Z-1-001\Entrega 2\src\main\java\com\ferremas\controller\UsuarioController.java
-C:\Users\andre\Documents\Entrega 2 -20250607T135431Z-1-001\Entrega 2\src\main\java\com\ferremas\FerremasApiApplication.java
-C:\Users\andre\Documents\Entrega 2 -20250607T135431Z-1-001\Entrega 2\src\main\java\com\ferremas\service\DivisaService.java
-C:\Users\andre\Documents\Entrega 2 -20250607T135431Z-1-001\Entrega 2\src\main\java\com\ferremas\repository\UsuarioRepository.java
-C:\Users\andre\Documents\Entrega 2 -20250607T135431Z-1-001\Entrega 2\src\main\java\com\ferremas\controller\PagoController.java
+C:\Users\andre\Documents\GitHub\API-Spring-Boot\src\main\java\com\ferremas\model\Compra.java
+C:\Users\andre\Documents\GitHub\API-Spring-Boot\src\main\java\com\ferremas\config\SwaggerConfig.java
+C:\Users\andre\Documents\GitHub\API-Spring-Boot\src\main\java\com\ferremas\service\CompraService.java
+C:\Users\andre\Documents\GitHub\API-Spring-Boot\src\main\java\com\ferremas\repository\CompraRepository.java
+C:\Users\andre\Documents\GitHub\API-Spring-Boot\src\main\java\com\ferremas\controller\DivisaController.java
+C:\Users\andre\Documents\GitHub\API-Spring-Boot\src\main\java\com\ferremas\repository\UsuarioRepository.java
+C:\Users\andre\Documents\GitHub\API-Spring-Boot\src\main\java\com\ferremas\controller\PagoController.java
+C:\Users\andre\Documents\GitHub\API-Spring-Boot\src\main\java\com\ferremas\FerremasApiApplication.java
+C:\Users\andre\Documents\GitHub\API-Spring-Boot\src\main\java\com\ferremas\controller\ContactoController.java
+C:\Users\andre\Documents\GitHub\API-Spring-Boot\src\main\java\com\ferremas\service\DivisaService.java
+C:\Users\andre\Documents\GitHub\API-Spring-Boot\src\main\java\com\ferremas\service\ProductoService.java
+C:\Users\andre\Documents\GitHub\API-Spring-Boot\src\main\java\com\ferremas\controller\CompraController.java
+C:\Users\andre\Documents\GitHub\API-Spring-Boot\src\main\java\com\ferremas\model\Producto.java
+C:\Users\andre\Documents\GitHub\API-Spring-Boot\src\main\java\com\ferremas\controller\UsuarioController.java
+C:\Users\andre\Documents\GitHub\API-Spring-Boot\src\main\java\com\ferremas\model\Usuario.java
+C:\Users\andre\Documents\GitHub\API-Spring-Boot\src\main\java\com\ferremas\service\DataInitializationService.java
+C:\Users\andre\Documents\GitHub\API-Spring-Boot\src\main\java\com\ferremas\repository\ProductoRepository.java
+C:\Users\andre\Documents\GitHub\API-Spring-Boot\src\main\java\com\ferremas\controller\ProductoController.java
