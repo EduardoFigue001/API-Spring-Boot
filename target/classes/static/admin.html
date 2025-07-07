@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Panel - Ferremas</title>
+    <link rel="stylesheet" href="estilos.css">
+    <style>
+        .admin-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .admin-header {
+            background: #2c3e50;
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .admin-section {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        
+        .form-group textarea {
+            height: 80px;
+            resize: vertical;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-right: 10px;
+        }
+        
+        .btn-primary {
+            background: #3498db;
+            color: white;
+        }
+        
+        .btn-success {
+            background: #27ae60;
+            color: white;
+        }
+        
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+        }
+        
+        .btn:hover {
+            opacity: 0.8;
+        }
+        
+        .productos-lista {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .producto-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            background: #f9f9f9;
+        }
+        
+        .producto-card h4 {
+            margin: 0 0 10px 0;
+            color: #2c3e50;
+        }
+        
+        .producto-card p {
+            margin: 5px 0;
+            font-size: 14px;
+        }
+        
+        .mensaje {
+            padding: 15px;
+            border-radius: 4px;
+            margin: 15px 0;
+        }
+        
+        .mensaje.success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        
+        .mensaje.error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        
+        .tab {
+            background: #ecf0f1;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 4px 4px 0 0;
+            margin-right: 5px;
+        }
+        
+        .tab.active {
+            background: #3498db;
+            color: white;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+
+        .login-admin {
+            max-width: 400px;
+            margin: 100px auto;
+            padding: 30px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Login Admin -->
+        <div id="loginAdmin" class="login-admin">
+            <h2>Panel de Administración</h2>
+            <form id="loginAdminForm">
+                <div class="form-group">
+                    <label>Correo:</label>
+                    <input type="email" id="adminCorreo" required>
+                </div>
+                <div class="form-group">
+                    <label>Contraseña:</label>
+                    <input type="password" id="adminClave" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Iniciar Sesión</button>
+                <button type="button" class="btn" onclick="window.location.href='index.html'">Volver</button>
+            </form>
+            <div id="mensajeLogin"></div>
+        </div>
+
+        <!-- Panel Principal Admin -->
+        <div id="panelAdmin" style="display: none;">
+            <div class="admin-header">
+                <h1>🔧 Panel de Administración - Ferremas</h1>
+                <p>Gestión de productos y catálogo</p>
+                <button class="btn btn-danger" onclick="cerrarSesion()">Cerrar Sesión</button>
+            </div>
+
+            <div class="tabs">
+                <button class="tab active" onclick="mostrarTab('productos')">Gestionar Productos</button>
+                <button class="tab" onclick="mostrarTab('crear')">Crear Producto</button>
+                <button class="tab" onclick="mostrarTab('admin')">Crear Admin</button>
+            </div>
+
+            <!-- Tab: Gestionar Productos -->
+            <div id="tab-productos" class="tab-content active">
+                <div class="admin-section">
+                    <h3>📦 Productos Existentes</h3>
+                    <button class="btn btn-primary" onclick="cargarProductos()">Recargar Lista</button>
+                    <div id="productosLista" class="productos-lista">
+                        <!-- Productos se cargan aquí -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab: Crear Producto -->
+            <div id="tab-crear" class="tab-content">
+                <div class="admin-section">
+                    <h3>➕ Crear Nuevo Producto</h3>
+                    <form id="crearProductoForm">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                            <div class="form-group">
+                                <label>Código del Producto *:</label>
+                                <input type="text" id="codigoProducto" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Nombre *:</label>
+                                <input type="text" id="nombre" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Marca:</label>
+                                <input type="text" id="marca">
+                            </div>
+                            <div class="form-group">
+                                <label>Precio *:</label>
+                                <input type="number" id="precio" step="0.01" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Stock:</label>
+                                <input type="number" id="stock" value="0">
+                            </div>
+                            <div class="form-group">
+                                <label>Categoría:</label>
+                                <select id="categoria">
+                                    <option value="">Seleccionar...</option>
+                                    <option value="HERRAMIENTAS">Herramientas</option>
+                                    <option value="MATERIALES_CONSTRUCCION">Materiales de Construcción</option>
+                                    <option value="EQUIPOS_SEGURIDAD">Equipos de Seguridad</option>
+                                    <option value="ACCESORIOS_VARIOS">Accesorios Varios</option>
+                                    <option value="TORNILLOS_ANCLAJES">Tornillos y Anclajes</option>
+                                    <option value="FIJACIONES_ADHESIVOS">Fijaciones y Adhesivos</option>
+                                    <option value="EQUIPOS_MEDICION">Equipos de Medición</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Descripción:</label>
+                            <textarea id="descripcion" placeholder="Descripción del producto..."></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-success">Crear Producto</button>
+                        <button type="reset" class="btn">Limpiar</button>
+                    </form>
+                    <div id="mensajeCrear"></div>
+                </div>
+            </div>
+
+            <!-- Tab: Crear Admin -->
+            <div id="tab-admin" class="tab-content">
+                <div class="admin-section">
+                    <h3>👨‍💼 Crear Nuevo Administrador</h3>
+                    <form id="crearAdminForm">
+                        <div class="form-group">
+                            <label>Correo del nuevo admin *:</label>
+                            <input type="email" id="nuevoAdminCorreo" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Contraseña *:</label>
+                            <input type="password" id="nuevoAdminClave" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Clave maestra de administrador *:</label>
+                            <input type="password" id="claveAdmin" placeholder="ferremas2024" required>
+                        </div>
+                        <button type="submit" class="btn btn-success">Crear Administrador</button>
+                    </form>
+                    <div id="mensajeAdmin"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let usuarioAdmin = null;
+
+        // Login Admin
+        document.getElementById('loginAdminForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const correo = document.getElementById('adminCorreo').value;
+            const clave = document.getElementById('adminClave').value;
+
+            fetch('/api/usuarios/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ correo, clave })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success && data.mensaje === 'OK') {
+                    // Verificar si es admin (por ahora cualquiera puede acceder)
+                    usuarioAdmin = data.usuario;
+                    document.getElementById('loginAdmin').style.display = 'none';
+                    document.getElementById('panelAdmin').style.display = 'block';
+                    cargarProductos();
+                } else {
+                    mostrarMensaje('mensajeLogin', 'Credenciales incorrectas', 'error');
+                }
+            })
+            .catch(error => {
+                mostrarMensaje('mensajeLogin', 'Error de conexión', 'error');
+            });
+        });
+
+        // Crear Producto
+        document.getElementById('crearProductoForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const productoData = {
+                correoAdmin: usuarioAdmin.correo,
+                codigoProducto: document.getElementById('codigoProducto').value,
+                nombre: document.getElementById('nombre').value,
+                marca: document.getElementById('marca').value,
+                precio: document.getElementById('precio').value,
+                stock: document.getElementById('stock').value,
+                categoria: document.getElementById('categoria').value,
+                descripcion: document.getElementById('descripcion').value
+            };
+
+            fetch('/api/productos/admin', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(productoData)
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    mostrarMensaje('mensajeCrear', 'Producto creado exitosamente', 'success');
+                    document.getElementById('crearProductoForm').reset();
+                    cargarProductos();
+                } else {
+                    mostrarMensaje('mensajeCrear', data.mensaje, 'error');
+                }
+            })
+            .catch(error => {
+                mostrarMensaje('mensajeCrear', 'Error al crear producto', 'error');
+            });
+        });
+
+        // Crear Admin
+        document.getElementById('crearAdminForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const adminData = {
+                correo: document.getElementById('nuevoAdminCorreo').value,
+                clave: document.getElementById('nuevoAdminClave').value,
+                claveAdmin: document.getElementById('claveAdmin').value
+            };
+
+            fetch('/api/usuarios/crear-admin', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(adminData)
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    mostrarMensaje('mensajeAdmin', 'Administrador creado exitosamente', 'success');
+                    document.getElementById('crearAdminForm').reset();
+                } else {
+                    mostrarMensaje('mensajeAdmin', data.mensaje, 'error');
+                }
+            })
+            .catch(error => {
+                mostrarMensaje('mensajeAdmin', 'Error al crear administrador', 'error');
+            });
+        });
+
+        function cargarProductos() {
+            fetch('/api/productos')
+                .then(res => res.json())
+                .then(productos => {
+                    const container = document.getElementById('productosLista');
+                    container.innerHTML = '';
+                      productos.forEach(prod => {
+                        const precio = prod.precioActual || 0;
+                        const card = document.createElement('div');
+                        card.className = 'producto-card';
+                        card.innerHTML = `
+                            <h4>${prod.nombre}</h4>
+                            <p><strong>Código:</strong> ${prod.codigoProducto}</p>
+                            <p><strong>Marca:</strong> ${prod.marca || 'N/A'}</p>
+                            <p><strong>Precio:</strong> $${precio.toLocaleString('es-CL')}</p>
+                            <p><strong>Stock:</strong> ${prod.stock || 0}</p>
+                            <p><strong>Categoría:</strong> ${prod.categoria || 'N/A'}</p>
+                            <button class="btn btn-danger" onclick="eliminarProducto('${prod.codigoProducto}')">
+                                Eliminar
+                            </button>
+                        `;
+                        container.appendChild(card);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error al cargar productos:', error);
+                });
+        }
+
+        function eliminarProducto(codigo) {
+            if (confirm('¿Estás seguro de que quieres eliminar este producto?')) {
+                fetch(`/api/productos/admin/${codigo}`, {
+                    method: 'DELETE'
+                })
+                .then(res => {
+                    if (res.ok) {
+                        alert('Producto eliminado exitosamente');
+                        cargarProductos();
+                    } else {
+                        alert('Error al eliminar producto');
+                    }
+                })
+                .catch(error => {
+                    alert('Error de conexión');
+                });
+            }
+        }
+
+        function mostrarTab(tabName) {
+            // Ocultar todos los tabs
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            
+            // Mostrar tab seleccionado
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function mostrarMensaje(elementId, mensaje, tipo) {
+            const elemento = document.getElementById(elementId);
+            elemento.innerHTML = `<div class="mensaje ${tipo}">${mensaje}</div>`;
+            setTimeout(() => {
+                elemento.innerHTML = '';
+            }, 5000);
+        }
+
+        function cerrarSesion() {
+            usuarioAdmin = null;
+            document.getElementById('panelAdmin').style.display = 'none';
+            document.getElementById('loginAdmin').style.display = 'block';
+            document.getElementById('loginAdminForm').reset();
+        }
+    </script>
+</body>
+</html>

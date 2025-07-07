@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug - Ferremas</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .debug-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        h1 { color: #333; }
+        h2 { color: #666; }
+        pre {
+            background: #f4f4f4;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Debug - LocalStorage y Usuario</h1>
+        
+        <div class="debug-section">
+            <h2>Datos en LocalStorage</h2>
+            <button onclick="mostrarLocalStorage()">Mostrar LocalStorage</button>
+            <button onclick="limpiarLocalStorage()">Limpiar LocalStorage</button>
+            <div id="localStorage-data"></div>
+        </div>
+
+        <div class="debug-section">
+            <h2>Estado de Usuario</h2>
+            <button onclick="verificarUsuario()">Verificar Usuario</button>
+            <div id="usuario-data"></div>
+        </div>
+
+        <div class="debug-section">
+            <h2>Test Compra</h2>
+            <button onclick="testCompra()">Test Crear Compra</button>
+            <div id="test-data"></div>
+        </div>
+
+        <div class="debug-section">
+            <h2>Acciones</h2>
+            <button onclick="irALogin()">Ir a Login</button>
+            <button onclick="irACarro()">Ir a Carro</button>
+            <button onclick="irAHistorial()">Ir a Historial</button>
+        </div>
+    </div>
+
+    <script>
+        function mostrarLocalStorage() {
+            const data = {};
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                data[key] = localStorage.getItem(key);
+            }
+            document.getElementById('localStorage-data').innerHTML = 
+                '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+        }
+
+        function limpiarLocalStorage() {
+            localStorage.clear();
+            alert('LocalStorage limpiado');
+            mostrarLocalStorage();
+        }
+
+        function verificarUsuario() {
+            const userInfo = localStorage.getItem('userInfo');
+            const userToken = localStorage.getItem('userToken');
+            
+            let html = '<h3>Datos del Usuario:</h3>';
+            html += '<p><strong>userInfo:</strong> ' + (userInfo || 'No encontrado') + '</p>';
+            html += '<p><strong>userToken:</strong> ' + (userToken || 'No encontrado') + '</p>';
+            
+            if (userInfo) {
+                try {
+                    const usuario = JSON.parse(userInfo);
+                    html += '<h4>Usuario parseado:</h4>';
+                    html += '<pre>' + JSON.stringify(usuario, null, 2) + '</pre>';
+                } catch (e) {
+                    html += '<p style="color: red;">Error al parsear userInfo: ' + e.message + '</p>';
+                }
+            }
+            
+            document.getElementById('usuario-data').innerHTML = html;
+        }
+
+        async function testCompra() {
+            const usuario = JSON.parse(localStorage.getItem('userInfo'));
+            if (!usuario) {
+                document.getElementById('test-data').innerHTML = 
+                    '<p style="color: red;">No hay usuario logueado</p>';
+                return;
+            }
+
+            const compraData = {
+                usuarioId: usuario.id,
+                totalCompra: 1000,
+                metodoPago: "Efectivo",
+                direccionEntrega: usuario.email,
+                notasCompra: "Test desde debug",
+                detalles: [{
+                    productoId: 1,
+                    cantidad: 1,
+                    precioUnitario: 1000
+                }]
+            };
+
+            try {
+                const response = await fetch('http://localhost:8080/api/compras', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(compraData)
+                });
+
+                const result = await response.json();
+                document.getElementById('test-data').innerHTML = 
+                    '<h4>Resultado Test Compra:</h4><pre>' + JSON.stringify(result, null, 2) + '</pre>';
+            } catch (error) {
+                document.getElementById('test-data').innerHTML = 
+                    '<p style="color: red;">Error: ' + error.message + '</p>';
+            }
+        }
+
+        function irALogin() {
+            window.location.href = 'registro.html';
+        }
+
+        function irACarro() {
+            window.location.href = 'carro.html';
+        }
+
+        function irAHistorial() {
+            window.location.href = 'historial.html';
+        }
+
+        // Cargar datos al cargar la página
+        window.onload = function() {
+            mostrarLocalStorage();
+            verificarUsuario();
+        };
+    </script>
+</body>
+</html>

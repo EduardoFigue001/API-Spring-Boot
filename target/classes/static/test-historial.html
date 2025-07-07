@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Historial - Ferremas</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background: #cce6ff; color: #004085; border: 1px solid #b3d7ff; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+        pre {
+            background: #f4f4f4;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Test Historial de Compras</h1>
+        
+        <div id="status"></div>
+        
+        <div>
+            <button onclick="hacerLogin()">1. Hacer Login</button>
+            <button onclick="cargarHistorial()">2. Cargar Historial</button>
+            <button onclick="irAHistorialReal()">3. Ir a Historial Real</button>
+        </div>
+        
+        <div id="resultado"></div>
+    </div>
+
+    <script>
+        function mostrarStatus(mensaje, tipo = 'info') {
+            document.getElementById('status').innerHTML = 
+                `<div class="${tipo}">${mensaje}</div>`;
+        }
+
+        async function hacerLogin() {
+            try {
+                mostrarStatus('Haciendo login...', 'info');
+                
+                const loginData = {
+                    correo: "usuario@test.com",
+                    clave: "123456"
+                };
+
+                const response = await fetch('http://localhost:8080/api/usuarios/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(loginData)
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    
+                    // Guardar en localStorage como lo hace el frontend real
+                    localStorage.setItem('userInfo', JSON.stringify(result.usuario));
+                    localStorage.setItem('userToken', result.token);
+                    
+                    mostrarStatus('Login exitoso! Usuario logueado: ' + result.usuario.correo, 'success');
+                    document.getElementById('resultado').innerHTML = 
+                        '<h3>Datos guardados en localStorage:</h3><pre>' + 
+                        JSON.stringify(result, null, 2) + '</pre>';
+                } else {
+                    const error = await response.text();
+                    mostrarStatus('Error en login: ' + error, 'error');
+                }
+            } catch (error) {
+                mostrarStatus('Error: ' + error.message, 'error');
+            }
+        }
+
+        async function cargarHistorial() {
+            try {
+                mostrarStatus('Cargando historial...', 'info');
+                
+                const usuario = JSON.parse(localStorage.getItem('userInfo'));
+                if (!usuario) {
+                    mostrarStatus('No hay usuario logueado. Haz login primero.', 'error');
+                    return;
+                }
+
+                const response = await fetch(`http://localhost:8080/api/compras/usuario/${usuario.id}`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    mostrarStatus('Historial cargado exitosamente!', 'success');
+                    
+                    let html = '<h3>Datos recibidos del API:</h3>';
+                    html += '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+                    
+                    if (data.compras && data.compras.length > 0) {
+                        html += '<h3>Compras encontradas:</h3>';
+                        data.compras.forEach(compra => {
+                            html += `
+                                <div style="border: 1px solid #ddd; margin: 10px 0; padding: 10px;">
+                                    <h4>Compra ID: ${compra.id}</h4>
+                                    <p>Fecha: ${new Date(compra.fechaCompra).toLocaleString()}</p>
+                                    <p>Total: $${compra.totalCompra.toLocaleString()}</p>
+                                    <p>Estado: ${compra.estado}</p>
+                                    <p>Método: ${compra.metodoPago}</p>
+                                    <p>Detalles: ${compra.detalles ? compra.detalles.length : 0} productos</p>
+                                </div>
+                            `;
+                        });
+                    } else {
+                        html += '<p>No se encontraron compras.</p>';
+                    }
+                    
+                    document.getElementById('resultado').innerHTML = html;
+                } else {
+                    const error = await response.text();
+                    mostrarStatus('Error al cargar historial: ' + error, 'error');
+                }
+            } catch (error) {
+                mostrarStatus('Error: ' + error.message, 'error');
+            }
+        }
+
+        function irAHistorialReal() {
+            window.location.href = 'historial.html';
+        }
+
+        // Auto-ejecutar al cargar la página
+        window.onload = function() {
+            mostrarStatus('Página cargada. Haz click en "1. Hacer Login" primero.', 'info');
+        };
+    </script>
+</body>
+</html>
